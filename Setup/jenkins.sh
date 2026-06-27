@@ -27,23 +27,56 @@ mvn -version
 
 
 echo "========================================="
-echo "Installing Jenkins"
+echo "Installing Java 21"
 echo "========================================="
 
-# Remove any old Jenkins repository
+sudo apt install -y openjdk-21-jdk
+java -version
+
+echo "========================================="
+echo "Installing Maven"
+echo "========================================="
+
+sudo apt install -y maven
+mvn -version
+
+echo "========================================="
+echo "Installing Docker (if not installed)"
+echo "========================================="
+
+if ! command -v docker >/dev/null 2>&1; then
+    curl -fsSL https://get.docker.com | sudo sh
+    sudo systemctl enable docker
+    sudo systemctl start docker
+fi
+
+docker --version
+
+echo "========================================="
+echo "Installing Jenkins (FIXED GPG SETUP)"
+echo "========================================="
+
+# Remove old configs
 sudo rm -f /etc/apt/sources.list.d/jenkins.list
+sudo rm -f /usr/share/keyrings/jenkins.gpg
 
-# Download Jenkins GPG key
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
-| sudo tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
+# Create keyrings folder
+sudo mkdir -p /etc/apt/keyrings
 
-# Add Jenkins repository
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" \
-| sudo tee /etc/apt/sources.list.d/jenkins.list >/dev/null
+# Add correct Jenkins GPG key (FIX)
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
+sudo gpg --dearmor -o /etc/apt/keyrings/jenkins.gpg
+
+# Add Jenkins repo (correct format)
+echo "deb [signed-by=/etc/apt/keyrings/jenkins.gpg] https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
 sudo apt update
-
 sudo apt install -y jenkins
+
+echo "========================================="
+echo "Starting Jenkins"
+echo "========================================="
 
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
@@ -62,23 +95,15 @@ echo "Versions"
 echo "========================================="
 
 java -version
-
 echo "----------------"
 
-if command -v mvn >/dev/null 2>&1; then
-    mvn -version
-else
-    echo "Maven not installed"
-fi
-
+mvn -version || echo "Maven not found"
 echo "----------------"
 
 docker --version
-
 echo "----------------"
 
-docker compose version
-
+docker compose version || echo "Docker Compose not found"
 echo "----------------"
 
 git --version
