@@ -64,8 +64,8 @@ sudo rm -f /usr/share/keyrings/jenkins.gpg
 sudo mkdir -p /etc/apt/keyrings
 
 # Add correct Jenkins GPG key (FIX)
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
-sudo gpg --dearmor -o /etc/apt/keyrings/jenkins.gpg
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
 
 # Add Jenkins repo (correct format)
 echo "deb [signed-by=/etc/apt/keyrings/jenkins.gpg] https://pkg.jenkins.io/debian-stable binary/" | \
