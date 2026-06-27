@@ -30,12 +30,16 @@ echo "========================================="
 echo "Installing Jenkins"
 echo "========================================="
 
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
-sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+# Remove any old Jenkins repository
+sudo rm -f /etc/apt/sources.list.d/jenkins.list
 
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-https://pkg.jenkins.io/debian-stable binary/ | \
-sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+# Download Jenkins GPG key
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
+| sudo tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
+
+# Add Jenkins repository
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" \
+| sudo tee /etc/apt/sources.list.d/jenkins.list >/dev/null
 
 sudo apt update
 
@@ -48,11 +52,10 @@ echo "========================================="
 echo "Adding Jenkins to Docker Group"
 echo "========================================="
 
-sudo usermod -aG docker jenkins
+sudo usermod -aG docker jenkins || true
 
-sudo systemctl restart docker
+sudo systemctl restart docker || true
 sudo systemctl restart jenkins
-
 
 echo "========================================="
 echo "Versions"
@@ -62,7 +65,11 @@ java -version
 
 echo "----------------"
 
-mvn -version
+if command -v mvn >/dev/null 2>&1; then
+    mvn -version
+else
+    echo "Maven not installed"
+fi
 
 echo "----------------"
 
@@ -88,11 +95,12 @@ echo "========================================="
 
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
+SERVER_IP=$(hostname -I | awk '{print $1}')
+
 echo ""
 echo "========================================="
 echo "Installation Completed"
 echo "========================================="
 echo ""
 echo "Jenkins URL:"
-echo "http://YOUR_SERVER_IP:8080"
-echo ""
+echo "http://${SERVER_IP}:8080"
