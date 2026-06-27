@@ -106,73 +106,13 @@ resource "aws_instance" "web1" {
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.sub1.id
   vpc_security_group_ids = [aws_security_group.sg.id]
-  key_name               = "ubuntu-vm"
-  user_data              = file("docker.sh","jenkins.sh")
+  key_name               = "ble"
+  user_data = join("\n", [
+  file("../setup/docker.sh"),
+  file("../setup/jenkins.sh")
+])
 
   tags = {
     Name = "WebServer1Instance"
   }
 }
-# resource "aws_instance" "web2" {
-#   ami                    = "ami-00d8fc944fb171e29"
-#   instance_type          = "t3.micro"
-#   subnet_id              = aws_subnet.sub2.id
-#   vpc_security_group_ids = [aws_security_group.sg.id]
-#   key_name               = "ubuntu-vm"
-#   user_data              = file("docker.sh")
-#   tags = {
-#     Name = "WebServer2Instance"
-#   }
-# }
-
-# #Create Load Balancer
-# resource "aws_lb" "my_lb" {
-#   name               = "webapp-lb"
-#   internal           = false
-#   load_balancer_type = "application"
-#   security_groups    = [aws_security_group.sg.id]
-#   subnets            = [aws_subnet.sub1.id, aws_subnet.sub2.id]
-#   tags = {
-#     Name = "webapp-lb"
-#   }
-# }
-# #Create Target Group
-# resource "aws_lb_target_group" "webtg" {
-#   name     = "webapp-tg"
-#   port     = 80
-#   protocol = "HTTP"
-#   vpc_id   = aws_vpc.my_vpc.id
-
-#   health_check {
-#     path = "/"
-#     port = "traffic-port"
-#   }
-
-# }
-
-# #Create target group attachment for web1
-# resource "aws_lb_target_group_attachment" "web1_attach" {
-#   target_group_arn = aws_lb_target_group.webtg.arn
-#   target_id        = aws_instance.web1.id
-#   port             = 80
-# }
-
-# #Create target group attachment for web2
-# resource "aws_lb_target_group_attachment" "web2_attach" {
-#   target_group_arn = aws_lb_target_group.webtg.arn
-#   target_id        = aws_instance.web2.id
-#   port             = 80
-# }
-
-# #Create Listener
-# resource "aws_lb_listener" "listener" {
-#   load_balancer_arn = aws_lb.my_lb.arn
-#   port              = 80
-#   protocol          = "HTTP"
-
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.webtg.arn
-#   }
-
-# }
