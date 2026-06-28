@@ -1,0 +1,30 @@
+groups:
+  - name: ec2-alerts
+    rules:
+
+      - alert: HighCPUUsage
+        expr: avg(rate(node_cpu_seconds_total{mode!="idle"}[1m])) > 0.8
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 1 minute."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.15
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Available memory is below 15%."
+
+      - alert: ContainerDown
+        expr: time() - container_last_seen > 60
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Docker container down"
+          description: "A Docker container has stopped running."
