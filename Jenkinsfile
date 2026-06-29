@@ -30,13 +30,13 @@ pipeline {
 
         stage('Build Image') {
             steps {
-                sh 'docker build -t yuthikavj31545/jenkins-demo:""$GIT_COMMIT" .'
+                sh 'docker build -t yuthikavj31545/jenkins-demo:$GIT_COMMIT .'
             }
         }
 
         stage('Push Image') {
             steps {
-                sh 'docker push yuthikavj31545/jenkins-demo:""$GIT_COMMIT"'
+                sh 'docker push yuthikavj31545/jenkins-demo:$GIT_COMMIT'
             }
         }
     }
