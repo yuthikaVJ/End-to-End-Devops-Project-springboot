@@ -30,13 +30,13 @@ pipeline {
 
         stage('Build Image') {
             steps {
-                sh 'docker build -t yourdockerhubusername/myapp:latest .'
+                sh 'docker build -t yuthikavj31545/jenkins-demo:latest .'
             }
         }
 
         stage('Push Image') {
             steps {
-                sh 'docker push yourdockerhubusername/myapp:latest'
+                sh 'docker pushyuthikavj31545/jenkins-demo:latest'
             }
         }
     }
