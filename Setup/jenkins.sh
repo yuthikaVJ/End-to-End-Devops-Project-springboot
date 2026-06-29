@@ -39,6 +39,8 @@ sudo systemctl start jenkins.service
 
 sudo systemctl status jenkins
 
+sudo usermod -aG docker jenkins
+
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 SERVER_IP=$(hostname -I | awk '{print $1}')
