@@ -13,15 +13,31 @@ pipeline {
                 sh "mvn test"
             }
         }
-        stage('Docker Build & Push') {
+         stage('Docker Login') {
             steps {
-                 withDockerRegistry([credentialsId: "docker-hub", url: ""]) {
-                    sh 'printenv'
-                    sh 'sudo docker build -t yuthikavj31545/jenkins-demo:""$GIT_COMMIT"" .'
-                    sh 'docker push yuthikavj31545/jenkins-demo:""$GIT_COMMIT""'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+
+                    sh '''
+                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                    '''
                 }
             }
-                
+        }
+
+        stage('Build Image') {
+            steps {
+                sh 'docker build -t yourdockerhubusername/myapp:latest .'
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh 'docker push yourdockerhubusername/myapp:latest'
+            }
         }
     }
       
