@@ -13,6 +13,16 @@ pipeline {
                 sh "mvn test"
             }
         }
-      
+        stage('Docker Build & Push') {
+            steps {
+                 withDockerRegistry([credentialsId: "docker-hub", url: ""]) {
+                    sh 'printenv'
+                    sh 'sudo docker build -t yuthikavj31545/jenkins-demo:""$GIT_COMMIT"" .'
+                    sh 'docker push yuthikavj31545/jenkins-demo:""$GIT_COMMIT""'
+                }
+            }
+                
+        }
     }
+      
 }
